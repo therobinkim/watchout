@@ -40,8 +40,8 @@ var enemies;
 // Create array of random positions
 var createPositions = function(){
   for(var i = 0; i < numEnemies; i++) {
-    enemyX = Math.random() * width;
-    enemyY = Math.random() * height;
+    enemyX = Math.random() * (width - enemyR * 2);
+    enemyY = Math.random() * (height - enemyR  * 2);
     positions[i] = {x: enemyX, y: enemyY};
   }
 };
@@ -80,8 +80,8 @@ var hero = svg.append(heroShape)
 
 // Define drag functionality
 var dragMove = function() {
-  d3.select(this).attr('cx', d3.event.x)
-                 .attr('cy', d3.event.y);
+  d3.select(this).attr('cx', Math.max(heroR, Math.min(width - heroR, d3.event.x)))
+                 .attr('cy', Math.max(heroR, Math.min(height - heroR, d3.event.y)));
 };
 
 var drag = d3.behavior.drag()
