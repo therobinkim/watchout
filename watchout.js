@@ -10,8 +10,8 @@ d3.select('.board').style('height', height + 'px')
 
 // Set up
 var numEnemies = 30;
-var transitionDuration = 1500;
-var setIntervalDuration = 2000;
+var transitionDuration = 1000;
+var setIntervalDuration = 1000;
 var positions = [];
 var radius = 6;
 var xPos;
@@ -52,8 +52,43 @@ var newPositions = function() {
 // Update the circles every 2 seconds
 setInterval(newPositions, setIntervalDuration);
 
-// Create several enemies and put them on the Board
-// Randomly change their positions (move the enemies)
+
+// Add the Player to the board
+// Move the Player when we click and drag
+var heroWidth = 15;
+var heroHeight = 15;
+var heroX = (width - heroWidth)/2;
+var heroY = (height - heroHeight)/2;
+var heroColor = 'yellow';
+
+var hero = svg.append('rect')
+              .attr('x', heroX)
+              .attr('y', heroY)
+              .attr('width', heroWidth)
+              .attr('height', heroHeight)
+              .attr('fill', heroColor);
+
+var dragMove = function() {
+  d3.select(this).attr('x', d3.event.x)
+                 .attr('y', d3.event.y);
+};
+
+var drag = d3.behavior.drag()
+             .origin(function() {
+                    var t = d3.select(this);
+                    return {x: t.attr('x'), y: t.attr('y')};
+                  })
+             .on('drag', dragMove);
+
+// Tell hero to listen for the drag event!
+hero.call(drag);
+
+
+
+
+
+
+
 // Find out when our Hero is hit by an enemy, reduce Hero's point
 
 // WHAT TO TRACK IN THE ENEMY
