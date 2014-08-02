@@ -19,6 +19,7 @@ var yPos;
 
 // Create svg
 var svg = d3.select('.board').append('svg').attr('height', height).attr('width', width);
+var circles;
 
 // Create array of random positions
 var createPositions = function(){
@@ -28,10 +29,6 @@ var createPositions = function(){
     positions[i] = {x: xPos, y: yPos};
   }
 };
-createPositions();
-
-// Tell the circles to appear for the first time
-var circles = svg.selectAll('circle').data(positions).enter().append('circle');
 
 // Assign positions and radius (size) to all circles!
 var assignPositions = function() {
@@ -40,17 +37,24 @@ var assignPositions = function() {
          .attr('cy', function(d) { return d.y; })
          .attr('r', radius);
 };
-assignPositions();
+
+// Run the initialize function immediately
+var initialize = function() {
+  createPositions();
+  // Tell the circles to appear for the first time
+  circles = svg.selectAll('circle').data(positions).enter().append('circle');
+  assignPositions();
+}();
 
 // Update the circles with new positions
-var newPositions = function() {
+var updatePositions = function() {
   createPositions();
   circles = svg.selectAll('circle').data(positions);
   assignPositions();
 };
 
 // Update the circles every 2 seconds
-setInterval(newPositions, setIntervalDuration);
+setInterval(updatePositions, setIntervalDuration);
 
 
 // Add the Player to the board
@@ -87,7 +91,6 @@ var dragMove = function() {
     d3.select(this).attr('x', d3.event.x)
                    .attr('y', d3.event.y);
   }
-  
 };
 
 var drag = d3.behavior.drag()
