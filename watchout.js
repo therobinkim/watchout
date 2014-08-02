@@ -3,19 +3,18 @@ var width = 600;
 var height = 450;
 
 // Enemy properties
-var radius = 10; // hero is same size
+var enemyR = 15; // hero is same size
 var numEnemies = 20;
 var enemyX;
 var enemyY;
+var enemyPic = 'shuriken.png';
 var positions = [];
 
 // Hero properties
 var heroShape = 'circle';
-var heroWidth = radius * 2;
-var heroHeight = radius * 2;
-var heroX = (width - heroWidth)/2;
-var heroY = (height - heroHeight)/2;
-var heroR = radius; // from enemy
+var heroR = enemyR; // from enemy
+var heroX = (width - heroR * 2)/2;
+var heroY = (height - heroR * 2)/2;
 var heroColor = 'yellow';
 
 // Time properties in milliseconds
@@ -49,23 +48,25 @@ var createPositions = function(){
 // Assign positions and radius (size) to all enemies!
 var assignPositions = function() {
   enemies.transition().duration(transitionDuration)
-         .attr('cx', function(d) { return d.x; })
-         .attr('cy', function(d) { return d.y; })
-         .attr('r', radius);
+         .attr('x', function(d) { return d.x; })
+         .attr('y', function(d) { return d.y; })
+         .attr('height', enemyR * 2)
+         .attr('width', enemyR * 2)
+         .attr('xlink:href', enemyPic);
 };
 
 // Run the initialize function immediately
 var initialize = function() {
   createPositions();
   // Tell the enemies to appear for the first time
-  enemies = svg.selectAll('circle').data(positions).enter().append('circle');
+  enemies = svg.selectAll('image').data(positions).enter().append('image');
   assignPositions();
 }();
 
 // Update the enemies with new positions
 var updatePositions = function() {
   createPositions();
-  enemies = svg.selectAll('circle').data(positions);
+  enemies = svg.selectAll('image').data(positions);
   assignPositions();
 };
 
@@ -106,7 +107,7 @@ var updateCollisions = function() {
     enemyY = enemies[0][i].cy.animVal.value;
     squareDiffX = Math.pow(heroX - enemyX, 2);
     squareDiffY = Math.pow(heroY - enemyY, 2);
-    if(Math.sqrt(squareDiffX + squareDiffY) <= radius * 2) {
+    if(Math.sqrt(squareDiffX + squareDiffY) <= heroR + enemyR) {
       // Update collision count
       colTimes++;
       d3.select('.collisions').select('span').text(colTimes);
