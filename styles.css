@@ -6,3 +6,18 @@ Feel free to use it if you like. */
 .board{
   background-color: gray;
 }
+
+image{
+  -webkit-transform-origin: center center;
+  -webkit-animation: spin 1s infinite;
+
+}
+
+@-webkit-keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(540deg);
+  }
+}

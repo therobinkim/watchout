@@ -8,13 +8,14 @@ var numEnemies = 20;
 var enemyX;
 var enemyY;
 var enemyPic = 'shuriken.png';
+var enemyPicOffset = enemyR/50; // for pictures that don't go from border to border
 var positions = [];
 
 // Hero properties
 var heroShape = 'circle';
 var heroR = enemyR; // from enemy
-var heroX = (width - heroR * 2)/2;
-var heroY = (height - heroR * 2)/2;
+var heroX = (width)/2;
+var heroY = (height)/2;
 var heroColor = 'yellow';
 
 // Time properties in milliseconds
@@ -102,12 +103,12 @@ var updateCollisions = function() {
   var squareDiffY;
   // Check for collisions
   for(var i = 0; i < enemies[0].length; i++) {
-    enemyX = enemies[0][i].cx.animVal.value;
+    enemyX = enemies[0][i].x.animVal.value;
     console.log(enemyX);
-    enemyY = enemies[0][i].cy.animVal.value;
-    squareDiffX = Math.pow(heroX - enemyX, 2);
-    squareDiffY = Math.pow(heroY - enemyY, 2);
-    if(Math.sqrt(squareDiffX + squareDiffY) <= heroR + enemyR) {
+    enemyY = enemies[0][i].y.animVal.value;
+    squareDiffX = Math.pow(heroX - heroR - enemyX, 2);
+    squareDiffY = Math.pow(heroY - heroR - enemyY, 2);
+    if(Math.sqrt(squareDiffX + squareDiffY) <= heroR + enemyR - enemyPicOffset) {
       // Update collision count
       colTimes++;
       d3.select('.collisions').select('span').text(colTimes);
