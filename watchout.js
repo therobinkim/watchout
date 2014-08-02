@@ -2,6 +2,7 @@
 var width = 600;
 var height = 450;
 
+
 // Enemy properties
 var enemyR = 15; // hero is same size
 var numEnemies = 20;
@@ -30,6 +31,7 @@ var score = 0;
 var highScore = 0;
 
 // Create board
+d3.select('.scoreboard').style('width', width + 'px');
 d3.select('.board').style('height', height + 'px')
                    .style('width', width + 'px');
 
@@ -104,7 +106,6 @@ var updateCollisions = function() {
   // Check for collisions
   for(var i = 0; i < enemies[0].length; i++) {
     enemyX = enemies[0][i].x.animVal.value;
-    console.log(enemyX);
     enemyY = enemies[0][i].y.animVal.value;
     squareDiffX = Math.pow(heroX - heroR - enemyX, 2);
     squareDiffY = Math.pow(heroY - heroR - enemyY, 2);
