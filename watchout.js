@@ -9,11 +9,11 @@ d3.select('.board').style('height', height + 'px')
                    .style('width', width + 'px');
 
 // Set up
-var numEnemies = 30;
+var numEnemies = 15;
 var transitionDuration = 1000;
 var setIntervalDuration = 1000;
 var positions = [];
-var radius = 6;
+var radius = 10;
 var xPos;
 var yPos;
 
@@ -55,28 +55,49 @@ setInterval(newPositions, setIntervalDuration);
 
 // Add the Player to the board
 // Move the Player when we click and drag
-var heroWidth = 15;
-var heroHeight = 15;
+var heroShape = 'circle';
+var heroWidth = radius * 2;
+var heroHeight = radius * 2;
+
+var heroR = radius; // from enemy
 var heroX = (width - heroWidth)/2;
 var heroY = (height - heroHeight)/2;
 var heroColor = 'yellow';
 
-var hero = svg.append('rect')
-              .attr('x', heroX)
-              .attr('y', heroY)
-              .attr('width', heroWidth)
-              .attr('height', heroHeight)
+var hero = svg.append(heroShape)
               .attr('fill', heroColor);
 
+if(heroShape === 'circle') {
+  hero.attr('r', heroR)
+      .attr('cx', heroX)
+      .attr('cy', heroY);
+} else if(heroShape === 'rect') {
+  hero.attr('x', heroX)
+      .attr('y', heroY)
+      .attr('width', heroWidth)
+      .attr('height', heroHeight);
+}
+
+
 var dragMove = function() {
-  d3.select(this).attr('x', d3.event.x)
-                 .attr('y', d3.event.y);
+  if(heroShape === 'circle') {
+    d3.select(this).attr('cx', d3.event.x)
+                   .attr('cy', d3.event.y);
+  } else if(heroShape === 'rect') {
+    d3.select(this).attr('x', d3.event.x)
+                   .attr('y', d3.event.y);
+  }
+  
 };
 
 var drag = d3.behavior.drag()
              .origin(function() {
                     var t = d3.select(this);
-                    return {x: t.attr('x'), y: t.attr('y')};
+                    if(heroShape === 'circle') {
+                      return {'x': t.attr('cx'), 'y': t.attr('cy')};
+                    } else if(heroShape === 'rect') {
+                      return {x: t.attr('x'), y: t.attr('y')};
+                    }
                   })
              .on('drag', dragMove);
 
