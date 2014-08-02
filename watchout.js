@@ -1,38 +1,53 @@
-// 3 Objects
-// The Board, The Blacks and The Hero
-
+// Board properties
 var width = 600;
 var height = 500;
 
-// Create a Board
+// Time properties
+var transitionDuration = 1000;
+var setIntervalDuration = 1000;
+var collisionScoreUpdateDuration = 50;
+
+// Enemy properties
+var radius = 15; // hero is same size
+var numEnemies = 15;
+var enemyX;
+var enemyY;
+var positions = [];
+
+// Hero properties
+var heroShape = 'circle';
+var heroWidth = radius * 2;
+var heroHeight = radius * 2;
+var heroX = (width - heroWidth)/2;
+var heroY = (height - heroHeight)/2;
+var heroR = radius; // from enemy
+var heroColor = 'yellow';
+
+// Score properties
+var colTimes = 0;
+var score = 0;
+var highScore = 0;
+
+// Create board
 d3.select('.board').style('height', height + 'px')
                    .style('width', width + 'px');
 
-// Set up
-var numEnemies = 15;
-var transitionDuration = 1000;
-var setIntervalDuration = 1000;
-var positions = [];
-var radius = 10;
-var xPos;
-var yPos;
-
 // Create svg
 var svg = d3.select('.board').append('svg').attr('height', height).attr('width', width);
-var circles;
+var enemies;
 
 // Create array of random positions
 var createPositions = function(){
   for(var i = 0; i < numEnemies; i++) {
-    xPos = Math.random() * width;
-    yPos = Math.random() * height;
-    positions[i] = {x: xPos, y: yPos};
+    enemyX = Math.random() * width;
+    enemyY = Math.random() * height;
+    positions[i] = {x: enemyX, y: enemyY};
   }
 };
 
-// Assign positions and radius (size) to all circles!
+// Assign positions and radius (size) to all enemies!
 var assignPositions = function() {
-  circles.transition().duration(transitionDuration)
+  enemies.transition().duration(transitionDuration)
          .attr('cx', function(d) { return d.x; })
          .attr('cy', function(d) { return d.y; })
          .attr('r', radius);
@@ -41,93 +56,76 @@ var assignPositions = function() {
 // Run the initialize function immediately
 var initialize = function() {
   createPositions();
-  // Tell the circles to appear for the first time
-  circles = svg.selectAll('circle').data(positions).enter().append('circle');
+  // Tell the enemies to appear for the first time
+  enemies = svg.selectAll('circle').data(positions).enter().append('circle');
   assignPositions();
 }();
 
-// Update the circles with new positions
+// Update the enemies with new positions
 var updatePositions = function() {
   createPositions();
-  circles = svg.selectAll('circle').data(positions);
+  enemies = svg.selectAll('circle').data(positions);
   assignPositions();
 };
 
-// Update the circles every 2 seconds
-setInterval(updatePositions, setIntervalDuration);
-
-
-// Add the Player to the board
-// Move the Player when we click and drag
-var heroShape = 'circle';
-var heroWidth = radius * 2;
-var heroHeight = radius * 2;
-
-var heroR = radius; // from enemy
-var heroX = (width - heroWidth)/2;
-var heroY = (height - heroHeight)/2;
-var heroColor = 'yellow';
-
+// Add the hero to the board
 var hero = svg.append(heroShape)
+              .attr('r', heroR)
+              .attr('cx', heroX)
+              .attr('cy', heroY)
               .attr('fill', heroColor);
 
-if(heroShape === 'circle') {
-  hero.attr('r', heroR)
-      .attr('cx', heroX)
-      .attr('cy', heroY);
-} else if(heroShape === 'rect') {
-  hero.attr('x', heroX)
-      .attr('y', heroY)
-      .attr('width', heroWidth)
-      .attr('height', heroHeight);
-}
-
-
+// Define drag functionality
 var dragMove = function() {
-  if(heroShape === 'circle') {
-    d3.select(this).attr('cx', d3.event.x)
-                   .attr('cy', d3.event.y);
-  } else if(heroShape === 'rect') {
-    d3.select(this).attr('x', d3.event.x)
-                   .attr('y', d3.event.y);
-  }
+  d3.select(this).attr('cx', d3.event.x)
+                 .attr('cy', d3.event.y);
 };
 
 var drag = d3.behavior.drag()
              .origin(function() {
                     var t = d3.select(this);
-                    if(heroShape === 'circle') {
-                      return {'x': t.attr('cx'), 'y': t.attr('cy')};
-                    } else if(heroShape === 'rect') {
-                      return {x: t.attr('x'), y: t.attr('y')};
-                    }
+                    return {'x': t.attr('cx'), 'y': t.attr('cy')};
                   })
              .on('drag', dragMove);
 
 // Tell hero to listen for the drag event!
 hero.call(drag);
 
+var collisionScoreUpdate = function() {
+  var heroX = hero.attr('cx');
+  var heroY = hero.attr('cy');
+  var enemyX;
+  var enemyY;
+  var squareDiffX;
+  var squareDiffY;
+  // Update score
+  score++;
+  d3.select('.current').select('span').text(score);
+  // Update high school if needed
+  if(score > highScore) {
+    highScore = score;
+    d3.select('.high').select('span').text(highScore);
+  }
+  // Check for collisions
+  for(var i = 0; i < enemies[0].length; i++) {
+    enemyX = enemies[0][i].cx.animVal.value;
+    console.log(enemyX);
+    enemyY = enemies[0][i].cy.animVal.value;
+    squareDiffX = Math.pow(heroX - enemyX, 2);
+    squareDiffY = Math.pow(heroY - enemyY, 2);
+    if(Math.sqrt(squareDiffX + squareDiffY) <= radius * 2) {
+      // Update collision count
+      colTimes++;
+      d3.select('.collisions').select('span').text(colTimes);
+      // Reset score
+      score = 0;
+      return;
+    }
+  }
+};
 
+// Update the enemies' positions
+setInterval(updatePositions, setIntervalDuration);
 
-
-
-
-
-// Find out when our Hero is hit by an enemy, reduce Hero's point
-
-// WHAT TO TRACK IN THE ENEMY
-// -Position in X and Y axes
-// --store as an Array of Arrays || a Point object with X and Y axes
-// --Random position generator - generates random X,Y and assigns to //   enemies
-// --Move the enemy by giving him a new position and using the transition method in d3 to move them
-
-// Have a mouse controlled Hero
-// Points accrue as the Hero and avoids being hit by the enemy
-// Keep track of high score
-
-
-// TOUGH QUESTIONS
-// --How do we control the Hero with a mouse
-// --How do we find out when he has being hit by an enemy
-
-
+// Update collision and score numbers
+setInterval(collisionScoreUpdate, collisionScoreUpdateDuration);
