@@ -1,15 +1,10 @@
 // Board properties
 var width = 600;
-var height = 500;
-
-// Time properties
-var transitionDuration = 1000;
-var setIntervalDuration = 1000;
-var collisionScoreUpdateDuration = 50;
+var height = 450;
 
 // Enemy properties
-var radius = 15; // hero is same size
-var numEnemies = 15;
+var radius = 10; // hero is same size
+var numEnemies = 20;
 var enemyX;
 var enemyY;
 var positions = [];
@@ -22,6 +17,12 @@ var heroX = (width - heroWidth)/2;
 var heroY = (height - heroHeight)/2;
 var heroR = radius; // from enemy
 var heroColor = 'yellow';
+
+// Time properties in milliseconds
+var transitionDuration = 1000;
+var updatePositionDuration = 1000;
+var updateCollisionDuration = 25;
+var updateScoreDuration = 50;
 
 // Score properties
 var colTimes = 0;
@@ -91,21 +92,13 @@ var drag = d3.behavior.drag()
 // Tell hero to listen for the drag event!
 hero.call(drag);
 
-var collisionScoreUpdate = function() {
+var updateCollisions = function() {
   var heroX = hero.attr('cx');
   var heroY = hero.attr('cy');
   var enemyX;
   var enemyY;
   var squareDiffX;
   var squareDiffY;
-  // Update score
-  score++;
-  d3.select('.current').select('span').text(score);
-  // Update high school if needed
-  if(score > highScore) {
-    highScore = score;
-    d3.select('.high').select('span').text(highScore);
-  }
   // Check for collisions
   for(var i = 0; i < enemies[0].length; i++) {
     enemyX = enemies[0][i].cx.animVal.value;
@@ -124,8 +117,22 @@ var collisionScoreUpdate = function() {
   }
 };
 
-// Update the enemies' positions
-setInterval(updatePositions, setIntervalDuration);
+var updateScore  = function() {
+// Update score
+  score++;
+  d3.select('.current').select('span').text(score);
+  // Update high school if needed
+  if(score > highScore) {
+    highScore = score;
+    d3.select('.high').select('span').text(highScore);
+  }
+};
 
-// Update collision and score numbers
-setInterval(collisionScoreUpdate, collisionScoreUpdateDuration);
+// Update the enemies' positions
+setInterval(updatePositions, updatePositionDuration);
+
+// Update the collision count
+setInterval(updateCollisions, updateCollisionDuration);
+
+// Update the score
+setInterval(updateScore, updateScoreDuration);
